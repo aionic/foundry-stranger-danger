@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-run-1",
+  "generated_utc": "2026-09-03T01:07:00Z",
+  "vector_stores": {
+    "alpha": "vs-alpha",
+    "bravo": "vs-bravo"
+  },
+  "indexes": ["opaque-alpha", "opaque-bravo"],
+  "index_owner": {
+    "opaque-alpha": "alpha",
+    "opaque-bravo": "bravo"
+  },
+  "tested_indexes": {
+    "alpha": "opaque-alpha",
+    "bravo": "opaque-bravo"
+  },
+  "index_name_attributable": false,
+  "results": {
+    "index_scoped": { "own": "ALLOW", "other": "DENY", "enforced": true },
+    "service_scoped": { "projectA": "ALLOW", "projectB": "ALLOW", "spans_projects": true }
+  }
+}

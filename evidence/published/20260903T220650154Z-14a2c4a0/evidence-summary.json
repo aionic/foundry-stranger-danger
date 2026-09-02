@@ -1,0 +1,378 @@
+{
+  "schema_version": "1.0",
+  "source_run_id": "20260903T220650154Z-14a2c4a0",
+  "collected_utc": "2026-09-03T22:10:57.7946099Z",
+  "status": "passed",
+  "assessment_scope": "cosmos-storage-search",
+  "isolation_mode": "hardened",
+  "source": {
+    "git_commit": "2cc88f77d6c0f42e494154de0f3060afdf6872df",
+    "git_dirty": true,
+    "producer_hashes": [
+      {
+        "path": "scripts/00-preflight.ps1",
+        "sha256": "63865badebe9dbd8031afb98f1c2a315665197d785f7ee828273309067ba74bc"
+      },
+      {
+        "path": "scripts/EvidenceContract.ps1",
+        "sha256": "00cd081185cb1e7016c3987611b6ad68276676c85888f29598b29463d856967f"
+      },
+      {
+        "path": "scripts/02-run-agents.ps1",
+        "sha256": "dffe5356331b6ed1f9f0c02eb8086530d7cf500cc267bf7960ca1fe2b53b9847"
+      },
+      {
+        "path": "scripts/10-show-isolation.ps1",
+        "sha256": "644c10852ff3383a5d4dd4cc60c88599eb364e3f566f332f263a14f0837b4369"
+      },
+      {
+        "path": "scripts/11-test-cross-access.ps1",
+        "sha256": "713a705ac378ea3262f4e1ebc0cf7b457885728426fce17cdfe5a718d2e3d1bd"
+      },
+      {
+        "path": "scripts/12-collect-evidence.ps1",
+        "sha256": "7904056d1dd25a37e358493470afd1ad014ce53afd911f1bd45807530ab5888b"
+      },
+      {
+        "path": "scripts/13-test-search-isolation.ps1",
+        "sha256": "ed7a2c44f03f73b8607b6bd27bad3b06712260a59e0ce6e6af734ac10a8d1edb"
+      },
+      {
+        "path": "scripts/14-validate-evidence.ps1",
+        "sha256": "a67037d477abb4fa366731dd03207a0cf508397b4564e5663c41bb21e305d7b4"
+      },
+      {
+        "path": "scripts/deploy-and-harden.ps1",
+        "sha256": "94a642098756a3d4608ac5b39c1a40243366f7359c91ed139fa1464f569498e4"
+      }
+    ],
+    "deployment_source_hashes": [
+      {
+        "path": "terraform/capability_hosts.tf",
+        "sha256": "9a890e97b8cd2a20d50b1ebcbdc5c585f9900206483f6419d0761b0cd74d172a"
+      },
+      {
+        "path": "terraform/connections.tf",
+        "sha256": "599fcd9568f2d353255c6890cd660ecee8d232cd6278ae159e9049eb7671a999"
+      },
+      {
+        "path": "terraform/dependencies.tf",
+        "sha256": "e558b45a1a461f2adbca32bf10e27e58b11e48fddadaabb64af6d493e0029f65"
+      },
+      {
+        "path": "terraform/foundry.tf",
+        "sha256": "ad8e7a32a6a6d117fa2d8d40d29334191d7eacca3caad302d89a5790bc7dca66"
+      },
+      {
+        "path": "terraform/guardrails.tf",
+        "sha256": "027ccdc72fd8ea2fc07f6ace8515b25454a278096881610204d60a83260fafce"
+      },
+      {
+        "path": "terraform/main.tf",
+        "sha256": "6b893e47ebf153c4dc8bde1e120a68428b061108d0eb114b60c95b0041188049"
+      },
+      {
+        "path": "terraform/observability.tf",
+        "sha256": "7308274dc6344355f3c5b887645683753182d043763c2979c0546e99d2289a17"
+      },
+      {
+        "path": "terraform/outputs.tf",
+        "sha256": "e21c977d29f80cc0c1412aca0938b1563b5bd14c50b1430f1a5aa889e1994d1e"
+      },
+      {
+        "path": "terraform/projects.tf",
+        "sha256": "507c75a9584ffd048e778da1122d4c63a55a52e919360d0bb6616bbc10d174d1"
+      },
+      {
+        "path": "terraform/providers.tf",
+        "sha256": "dcd9a5a6c839ef256743d25866422342881f66309b8c920abbd815806cf712a2"
+      },
+      {
+        "path": "terraform/rbac_isolation.tf",
+        "sha256": "fe7b555f3d546ef6568545b8c64935e9a8e53e93f76d477cbe5e3fd9644a14ad"
+      },
+      {
+        "path": "terraform/rbac_probes.tf",
+        "sha256": "390a3e33acf6efbbb495d87945a4148216f01130430138e099fde146ad3b3b54"
+      },
+      {
+        "path": "terraform/rbac_provisioning.tf",
+        "sha256": "e3df7d4da025472a125c211bae55d4c1b32ee7e5925744d57bed0b31f378e786"
+      },
+      {
+        "path": "terraform/variables.tf",
+        "sha256": "f97238196ef7a68384d8c4cbf496af28fca6ed2e7186c53be12b8a502b48684c"
+      },
+      {
+        "path": "terraform/.terraform.lock.hcl",
+        "sha256": "a997961a8062fd26b551e627885553830717ac19a0d27a2ee3b5806ff551cf28"
+      },
+      {
+        "path": "terraform/terraform.tfvars",
+        "sha256": "86f9725aa95e4aaa2b1a981853a7bbe2b50cc97c51bc4e0b9ec62666a38321a5"
+      },
+      {
+        "path": "terraform/modern-containers.auto.tfvars.json",
+        "sha256": "5d07c1680ea3712714f9292f19677a3847cd3551ec41bf4b79dfcf8b38d39943"
+      }
+    ],
+    "tool_versions": {
+      "terraform": "1.15.8",
+      "azure_cli": "2.86.0",
+      "powershell": "7.6.5"
+    },
+    "artifact_hashes": [
+      {
+        "path": "agents.json",
+        "sha256": "e928e85e876c533b8b7fe88da6694bae1deafd528f26defd48f169418bfed6a4"
+      },
+      {
+        "path": "isolation-inventory.json",
+        "sha256": "3fb07fcf15348dd768948319b40b5338fb86a3b1794341f44acc6bead994fd21"
+      },
+      {
+        "path": "cross-access-matrix.json",
+        "sha256": "5a82e7020335e0a4bad39c0110b7a6d25c8003c0c4011660032e9c48055e51d2"
+      },
+      {
+        "path": "cross-access-matrix.md",
+        "sha256": "63c78852865f6a5d8eb1433550cb5f9d57f9066fe784e8ef30e74317f0433971"
+      },
+      {
+        "path": "REPORT.md",
+        "sha256": "b342dbfc86739b45837ba2151f1032bc97c27174ba661c7052817a9fa9523230"
+      },
+      {
+        "path": "search-isolation.json",
+        "sha256": "6a619dee976e9214c541ca43a267bdf6c6e154bbebeeca83e5bffdcf380d798f"
+      }
+    ]
+  },
+  "assertions": {
+    "deployment_configuration_passed": true,
+    "deployment_configuration_failures": [],
+    "access_matrix_passed": true,
+    "access_matrix_failures": [],
+    "search_expected_results_observed": true
+  },
+  "projects": [
+    "alpha",
+    "bravo"
+  ],
+  "agents": {
+    "alpha": {
+      "status": "ok",
+      "api_version": "v1",
+      "canary_confirmed": true
+    },
+    "bravo": {
+      "status": "ok",
+      "api_version": "v1",
+      "canary_confirmed": true
+    }
+  },
+  "containers": {
+    "alpha": {
+      "cosmos_total": 5,
+      "cosmos_classic": 3,
+      "cosmos_modern": 2,
+      "blob_total": 2
+    },
+    "bravo": {
+      "cosmos_total": 5,
+      "cosmos_classic": 3,
+      "cosmos_modern": 2,
+      "blob_total": 2
+    }
+  },
+  "cosmos_grants": [
+    {
+      "principal": "probe:broad",
+      "granularity": "DATABASE (spans all projects)",
+      "count": 1
+    },
+    {
+      "principal": "probe:scoped-alpha",
+      "granularity": "container",
+      "count": 5
+    },
+    {
+      "principal": "probe:scoped-bravo",
+      "granularity": "container",
+      "count": 5
+    },
+    {
+      "principal": "project:alpha",
+      "granularity": "container",
+      "count": 5
+    },
+    {
+      "principal": "project:bravo",
+      "granularity": "container",
+      "count": 5
+    }
+  ],
+  "project_arm_roles": [
+    {
+      "principal": "project:alpha",
+      "resource": "cosmos",
+      "role": "Cosmos DB Operator",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:alpha",
+      "resource": "search",
+      "role": "Search Index Data Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:alpha",
+      "resource": "search",
+      "role": "Search Service Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:alpha",
+      "resource": "storage",
+      "role": "Storage Account Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:alpha",
+      "resource": "storage",
+      "role": "Storage Blob Data Owner",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": true,
+      "condition_version": "2.0"
+    },
+    {
+      "principal": "project:bravo",
+      "resource": "cosmos",
+      "role": "Cosmos DB Operator",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:bravo",
+      "resource": "search",
+      "role": "Search Index Data Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:bravo",
+      "resource": "search",
+      "role": "Search Service Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:bravo",
+      "resource": "storage",
+      "role": "Storage Account Contributor",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": false,
+      "condition_version": null
+    },
+    {
+      "principal": "project:bravo",
+      "resource": "storage",
+      "role": "Storage Blob Data Owner",
+      "granularity": "ACCOUNT (spans all projects)",
+      "direct": true,
+      "condition_present": true,
+      "condition_version": "2.0"
+    }
+  ],
+  "access_matrix": {
+    "broad": {
+      "permission_shape": "documented Cosmos scope + broad Blob connectivity control",
+      "results": {
+        "alpha": {
+          "cosmos": "ALLOW",
+          "blob": "ALLOW",
+          "verdict": "PASS"
+        },
+        "bravo": {
+          "cosmos": "ALLOW",
+          "blob": "ALLOW",
+          "verdict": "PASS"
+        }
+      }
+    },
+    "scoped-alpha": {
+      "permission_shape": "hardened: container/ABAC-scoped to project alpha",
+      "results": {
+        "alpha": {
+          "cosmos": "ALLOW",
+          "blob": "ALLOW",
+          "verdict": "PASS"
+        },
+        "bravo": {
+          "cosmos": "DENY",
+          "blob": "DENY",
+          "verdict": "PASS"
+        }
+      }
+    },
+    "scoped-bravo": {
+      "permission_shape": "hardened: container/ABAC-scoped to project bravo",
+      "results": {
+        "alpha": {
+          "cosmos": "DENY",
+          "blob": "DENY",
+          "verdict": "PASS"
+        },
+        "bravo": {
+          "cosmos": "ALLOW",
+          "blob": "ALLOW",
+          "verdict": "PASS"
+        }
+      }
+    }
+  },
+  "search": {
+    "project_count": 2,
+    "exact_indexes_recorded_in_source": true,
+    "index_names_redacted": true,
+    "index_name_attributable": false,
+    "index_scoped": {
+      "own": "ALLOW",
+      "enforced": true,
+      "other": "DENY"
+    },
+    "service_scoped": {
+      "projectA": "ALLOW",
+      "projectB": "ALLOW",
+      "spans_projects": true
+    }
+  },
+  "redactions": [
+    "Azure subscription and tenant identifiers",
+    "Azure resource group and resource names",
+    "Project and probe principal identifiers",
+    "Project endpoints and response identifiers",
+    "Vector-store identifiers and Search index names",
+    "Role condition expressions containing project GUIDs"
+  ]
+}

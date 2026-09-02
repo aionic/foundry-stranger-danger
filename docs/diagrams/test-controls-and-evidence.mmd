@@ -1,0 +1,44 @@
+%% Purpose: Test controls and evidence lineage
+%% Audience: Auditors and customer security reviewers
+flowchart LR
+    canary["Project canary agents<br/>Distinct response per project"]
+    deployer["Deployer control<br/>Resources exist and are attributable"]
+    broad["Broad connectivity control"]
+    alpha_probe["Alpha-scoped probe"]
+    bravo_probe["Bravo-scoped probe"]
+    search_probe["Serialized vector-store creation<br/>Exactly one new index per project"]
+
+    agents["Agent evidence<br/>API, identity, canary"]
+    inventory["Inventory evidence<br/>Resources and actual grants"]
+    broad_result["Alpha ALLOW<br/>Bravo ALLOW"]
+    alpha_result["Alpha ALLOW<br/>Bravo DENY"]
+    bravo_result["Alpha DENY<br/>Bravo ALLOW"]
+    matrix["Access matrix evidence<br/>Cosmos and Blob outcomes"]
+    search["Search evidence<br/>Exact tested indexes"]
+
+    manifest["Run manifest<br/>Run IDs, commit, hashes"]
+    validator["Offline contract validator"]
+    report["Reviewed customer findings"]
+
+    canary --> agents
+    deployer --> inventory
+    broad --> broad_result
+    alpha_probe --> alpha_result
+    bravo_probe --> bravo_result
+    broad_result --> matrix
+    alpha_result --> matrix
+    bravo_result --> matrix
+    search_probe --> search
+    agents --> manifest
+    inventory --> manifest
+    matrix --> manifest
+    search --> manifest
+    manifest --> validator
+    validator -->|Only validated runs| report
+
+    classDef evidence fill:#e8f1fb,stroke:#2563a6,color:#17212b;
+    classDef control fill:#fff4d6,stroke:#9a6700,color:#2b2110;
+    classDef gate fill:#e7f6ec,stroke:#237a3b,color:#102b18;
+    class canary,deployer,broad,alpha_probe,bravo_probe,search_probe control;
+    class agents,inventory,broad_result,alpha_result,bravo_result,matrix,search,manifest evidence;
+    class validator,report gate;

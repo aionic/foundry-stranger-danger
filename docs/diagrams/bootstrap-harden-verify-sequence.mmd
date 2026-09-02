@@ -1,0 +1,29 @@
+%% Purpose: Safe two-phase deployment for shared Cosmos and Storage
+%% Audience: Platform engineering and operations teams
+sequenceDiagram
+    autonumber
+    participant IaC as Deployment automation
+    participant Foundry as Foundry project
+    participant Cosmos as Shared Cosmos DB
+    participant Storage as Shared Storage
+    participant Gate as Verification gate
+
+    IaC->>Foundry: Create project, identity, connections, capability host
+    IaC->>Cosmos: Grant temporary database-scoped access
+    IaC->>Storage: Grant account role with project-prefix condition
+    Note over IaC,Storage: Bootstrap window uses synthetic data only, with no user access
+    IaC->>Foundry: Invoke one canary agent through Responses API
+    Foundry->>Cosmos: Create the two lazy modern containers
+    Foundry->>Storage: Create project-prefixed containers
+    IaC->>Cosmos: Add five project-container grants
+    IaC->>Cosmos: Remove temporary database grant
+    IaC->>Gate: Inventory actual grants and container ownership
+    Gate->>Cosmos: Own-project ALLOW and cross-project DENY
+    Gate->>Storage: Own-project ALLOW and cross-project DENY
+    alt Every configuration and behavior check passes
+        Gate-->>IaC: Cosmos and Storage verified
+        Note over IaC,Gate: User access may now be assigned
+    else Any check fails or is network-blocked
+        Gate-->>IaC: Fail closed
+        Note over IaC,Gate: Environment remains unavailable for real data
+    end

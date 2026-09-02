@@ -1,0 +1,33 @@
+%% Purpose: Measured authorization behavior by backing store
+%% Audience: Security decision-makers and implementation teams
+flowchart TB
+    scope_note["Scope: direct data-plane authorization<br/>Persistent provisioning roles are assessed separately"]
+    subgraph cosmos_lane["Azure Cosmos DB"]
+        cosmos_database["Broad scope<br/>Database-scoped role"] -->|ALLOW| cosmos_alpha["Alpha containers"]
+        cosmos_database -->|ALLOW cross-project| cosmos_bravo["Bravo containers"]
+        cosmos_container["Project-constrained<br/>Alpha container-scoped roles"] -->|ALLOW own project| cosmos_alpha_h["Alpha containers"]
+        cosmos_container -.->|DENY cross-project| cosmos_bravo_h["Bravo containers"]
+    end
+
+    subgraph storage_lane["Azure Storage"]
+        storage_account["Broad scope<br/>Unconditioned account role<br/>Connectivity control"] -->|ALLOW| storage_alpha["Alpha containers"]
+        storage_account -->|ALLOW cross-project| storage_bravo["Bravo containers"]
+        storage_abac["Project-constrained<br/>Account role with alpha<br/>container-prefix condition"] -->|ALLOW own project| storage_alpha_h["Alpha containers"]
+        storage_abac -.->|DENY cross-project| storage_bravo_h["Bravo containers"]
+    end
+
+    subgraph search_lane["Azure AI Search"]
+        search_service["Broad scope<br/>Service-scoped role"] -->|ALLOW| search_alpha["Alpha index"]
+        search_service -->|ALLOW cross-project| search_bravo["Bravo index"]
+        search_index["Project-constrained<br/>Index-scoped role"] -->|ALLOW selected index| search_alpha_h["Selected index"]
+        search_index -.->|DENY other index| search_bravo_h["Other index"]
+        opaque["Operational constraint<br/>Foundry index names do not identify a project"]
+        search_index -.-> opaque
+    end
+
+    classDef risk fill:#fde8e7,stroke:#b42318,color:#3b1110;
+    classDef control fill:#e7f6ec,stroke:#237a3b,color:#102b18;
+    classDef constraint fill:#fff4d6,stroke:#9a6700,color:#2b2110;
+    class cosmos_bravo,storage_bravo,search_bravo risk;
+    class cosmos_container,storage_abac,search_index,cosmos_alpha_h,storage_alpha_h,search_alpha_h control;
+    class opaque,scope_note constraint;

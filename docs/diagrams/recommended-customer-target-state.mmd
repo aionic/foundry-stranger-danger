@@ -1,0 +1,34 @@
+%% Purpose: Recommended target state for projects in separate trust boundaries
+%% Audience: Customer enterprise and security architects
+flowchart LR
+    subgraph foundry["Microsoft Foundry account - centralized governance"]
+        shared_model["Shared approved model deployments"]
+        alpha_project["Project alpha<br/>Managed identity"]
+        bravo_project["Project bravo<br/>Managed identity"]
+    end
+
+    subgraph alpha_boundary["Alpha data trust boundary"]
+        alpha_cosmos[("Cosmos DB account")]
+        alpha_storage[("Storage account")]
+        alpha_search[("AI Search service")]
+    end
+
+    subgraph bravo_boundary["Bravo data trust boundary"]
+        bravo_cosmos[("Cosmos DB account")]
+        bravo_storage[("Storage account")]
+        bravo_search[("AI Search service")]
+    end
+
+    shared_model --> alpha_project
+    shared_model --> bravo_project
+    alpha_project -->|Project identity only| alpha_cosmos
+    alpha_project -->|Project identity only| alpha_storage
+    alpha_project -->|Project identity only| alpha_search
+    bravo_project -->|Project identity only| bravo_cosmos
+    bravo_project -->|Project identity only| bravo_storage
+    bravo_project -->|Project identity only| bravo_search
+
+    classDef alpha fill:#e8f1fb,stroke:#2563a6,color:#17212b;
+    classDef bravo fill:#e7f6ec,stroke:#237a3b,color:#102b18;
+    class alpha_project,alpha_cosmos,alpha_storage,alpha_search alpha;
+    class bravo_project,bravo_cosmos,bravo_storage,bravo_search bravo;

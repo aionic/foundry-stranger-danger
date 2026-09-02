@@ -1,0 +1,42 @@
+%% Purpose: Validation-lab solution architecture
+%% Audience: Customer architects and security reviewers
+flowchart LR
+    reviewer["Security reviewer"]
+
+    subgraph rg["Azure resource group - validation lab"]
+        direction LR
+
+        subgraph foundry["Microsoft Foundry account"]
+            direction TB
+            account["Account governance<br/>and shared model deployment"]
+            alpha["Project alpha<br/>Managed identity, connections,<br/>agent runtime and capability host"]
+            bravo["Project bravo<br/>Managed identity, connections,<br/>agent runtime and capability host"]
+            account --> alpha
+            account --> bravo
+        end
+
+        subgraph backing["Connected Azure resources - independently governed"]
+            direction TB
+            cosmos[("Azure Cosmos DB<br/>Shared enterprise_memory database")]
+            storage[("Azure Storage<br/>Shared account")]
+            search[("Azure AI Search<br/>Shared service")]
+            key_vault["Key Vault<br/>Reference dependency,<br/>not on measured data path"]
+        end
+
+        monitor["Application Insights + Log Analytics<br/>Diagnostics and telemetry"]
+    end
+
+    reviewer -->|Deploys lab and runs probes| account
+    alpha -->|Conversation and agent state| cosmos
+    alpha -->|Files| storage
+    alpha -->|Vector data| search
+    bravo -->|Conversation and agent state| cosmos
+    bravo -->|Files| storage
+    bravo -->|Vector data| search
+    cosmos -.->|DataPlaneRequests| monitor
+    storage -.->|Storage read and write logs| monitor
+
+    classDef project fill:#e8f1fb,stroke:#2563a6,color:#17212b;
+    classDef shared fill:#fff4d6,stroke:#9a6700,color:#2b2110;
+    class alpha,bravo project;
+    class cosmos,storage,search shared;

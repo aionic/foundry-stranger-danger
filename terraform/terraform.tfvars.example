@@ -1,0 +1,29 @@
+# Copy to terraform.tfvars and adjust. The real terraform.tfvars is gitignored.
+
+subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "eastus2"
+
+# Azure AI Search capacity is constrained independently of everything else and
+# there is no API to query it reliably. Set this only when the primary region
+# cannot provision the requested SKU. Search exists here to satisfy the
+# capability host's vectorStoreConnections requirement; the canary agents do
+# not perform retrieval.
+#
+# Run scripts/00b-find-search-region.ps1 to re-check before deploying.
+search_location = null
+search_sku      = "basic"
+
+# 'hardened'   - Cosmos grants scoped per container (least privilege).
+# 'documented' - Cosmos grant scoped at the shared 'enterprise_memory' database.
+#                Deploy this to reproduce the broad reference shape tested here.
+isolation_mode = "hardened"
+
+# Serverless avoids the >= 10,000 RU/s requirement that two Responses API
+# projects would otherwise impose, and costs almost nothing at this scale.
+cosmos_capacity_mode = "serverless"
+
+enable_probe_identities    = true
+grant_deployer_data_access = true
+
+lifetime_days = 7
+owner         = "platform-team"

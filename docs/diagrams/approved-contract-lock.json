@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "approved_on": "2026-09-03",
+  "approval_record": "Explicit approval recorded in the architecture review conversation on 3 September 2026.",
+  "contracts": {
+    "bootstrap-harden-verify-sequence": {
+      "source": "bootstrap-harden-verify-sequence.mmd",
+      "sha256": "0a1f13c9073d75738913ce98a817d99d147c8fb60846790e4f41b2647fe20951",
+      "nodes": ["deployment_automation", "foundry_project", "shared_cosmos", "shared_storage", "verification_gate"],
+      "edges": [
+        "deployment_automation->foundry_project:create project, identity, connections, capability host",
+        "deployment_automation->shared_cosmos:grant temporary database-scoped access",
+        "deployment_automation->shared_storage:grant account role with project-prefix condition",
+        "deployment_automation->foundry_project:invoke one canary agent through Responses API",
+        "foundry_project->shared_cosmos:create the two lazy modern containers",
+        "foundry_project->shared_storage:create project-prefixed containers",
+        "deployment_automation->shared_cosmos:add five project-container grants",
+        "deployment_automation->shared_cosmos:remove temporary database grant",
+        "deployment_automation->verification_gate:inventory actual grants and container ownership",
+        "verification_gate->shared_cosmos:own-project ALLOW and cross-project DENY",
+        "verification_gate->shared_storage:own-project ALLOW and cross-project DENY",
+        "verification_gate->deployment_automation:Cosmos and Storage verified",
+        "verification_gate->deployment_automation:fail closed"
+      ],
+      "boundaries": ["bootstrap_window", "verification_alt"]
+    },
+    "measured-authorization-boundary": {
+      "source": "measured-authorization-boundary.mmd",
+      "sha256": "d92cd84a3c508fcb3ef963e34d92dee296e90504a78468737462f1875e4e8db4",
+      "nodes": ["scope_note", "cosmos_database", "cosmos_alpha", "cosmos_bravo", "cosmos_container", "cosmos_alpha_h", "cosmos_bravo_h", "storage_account", "storage_alpha", "storage_bravo", "storage_abac", "storage_alpha_h", "storage_bravo_h", "search_service", "search_alpha", "search_bravo", "search_index", "search_alpha_h", "search_bravo_h", "opaque"],
+      "edges": [
+        "cosmos_database->cosmos_alpha:ALLOW",
+        "cosmos_database->cosmos_bravo:ALLOW cross-project",
+        "cosmos_container->cosmos_alpha_h:ALLOW own project",
+        "cosmos_container->cosmos_bravo_h:DENY cross-project",
+        "storage_account->storage_alpha:ALLOW",
+        "storage_account->storage_bravo:ALLOW cross-project",
+        "storage_abac->storage_alpha_h:ALLOW own project",
+        "storage_abac->storage_bravo_h:DENY cross-project",
+        "search_service->search_alpha:ALLOW",
+        "search_service->search_bravo:ALLOW cross-project",
+        "search_index->search_alpha_h:ALLOW selected index",
+        "search_index->search_bravo_h:DENY other index",
+        "search_index->opaque:operational constraint"
+      ],
+      "boundaries": ["cosmos_lane", "storage_lane", "search_lane"]
+    },
+    "recommended-customer-target-state": {
+      "source": "recommended-customer-target-state.mmd",
+      "sha256": "2ec0828c0ec31245f85be6c858b7a7d8d06371dd1b277c8ec81ca90da70e5030",
+      "nodes": ["shared_model", "alpha_project", "bravo_project", "alpha_cosmos", "alpha_storage", "alpha_search", "bravo_cosmos", "bravo_storage", "bravo_search"],
+      "edges": [
+        "shared_model->alpha_project",
+        "shared_model->bravo_project",
+        "alpha_project->alpha_cosmos:project identity only",
+        "alpha_project->alpha_storage:project identity only",
+        "alpha_project->alpha_search:project identity only",
+        "bravo_project->bravo_cosmos:project identity only",
+        "bravo_project->bravo_storage:project identity only",
+        "bravo_project->bravo_search:project identity only"
+      ],
+      "boundaries": ["foundry", "alpha_boundary", "bravo_boundary"]
+    },
+    "test-controls-and-evidence": {
+      "source": "test-controls-and-evidence.mmd",
+      "sha256": "bd69e62e1cd388db9b40d7f6e91fa3764ca658256b1ad307f8931b5106a7ac90",
+      "nodes": ["canary", "deployer", "broad", "alpha_probe", "bravo_probe", "search_probe", "agents", "inventory", "broad_result", "alpha_result", "bravo_result", "matrix", "search", "manifest", "validator", "report"],
+      "edges": [
+        "canary->agents", "deployer->inventory", "broad->broad_result", "alpha_probe->alpha_result", "bravo_probe->bravo_result", "broad_result->matrix", "alpha_result->matrix", "bravo_result->matrix", "search_probe->search", "agents->manifest", "inventory->manifest", "matrix->manifest", "search->manifest", "manifest->validator", "validator->report:only validated runs"
+      ],
+      "boundaries": []
+    },
+    "validation-lab-topology": {
+      "source": "validation-lab-topology.mmd",
+      "sha256": "007271cedeed80f3ce70d3640ade39b97a5facb2eb24797ad75af7b64fe09473",
+      "nodes": ["reviewer", "account", "alpha", "bravo", "cosmos", "storage", "search", "key_vault", "monitor"],
+      "edges": [
+        "account->alpha", "account->bravo", "reviewer->account:deploys lab and runs probes", "alpha->cosmos:conversation and agent state", "alpha->storage:files", "alpha->search:vector data", "bravo->cosmos:conversation and agent state", "bravo->storage:files", "bravo->search:vector data", "cosmos->monitor:DataPlaneRequests", "storage->monitor:Storage read and write logs"
+      ],
+      "boundaries": ["rg", "foundry", "backing"]
+    }
+  }
+}

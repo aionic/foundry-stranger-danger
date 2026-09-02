@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "rendered_at_utc": "2026-09-03T19:19:03.409Z",
+  "approval_lock": "approved-contract-lock.json",
+  "canvas": {
+    "width": 3840,
+    "height": 2160,
+    "background": "#ffffff"
+  },
+  "renderer": "scripts/render-approved-diagrams.mjs",
+  "renderer_sha256": "113e005ee7dc9a00a5baab7650279748efac01287bae5d3b193b91ce0d99d511",
+  "official_icon_source": "https://arch-center.azureedge.net/icons/Azure_Public_Service_Icons_V24.zip",
+  "icons": [
+    {
+      "file": "assets/azure/ai-search.svg",
+      "sha256": "f7af1213ce089236593835cb5564d6d3f01358cba6488fe562aa8bbc8adc3b38",
+      "bytes": 1146
+    },
+    {
+      "file": "assets/azure/application-insights.svg",
+      "sha256": "36c73dea8b1598fbfff84890a2b409600f1339eec8c1bf1a896439e9da8f9dca",
+      "bytes": 2320
+    },
+    {
+      "file": "assets/azure/cosmos-db.svg",
+      "sha256": "b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3",
+      "bytes": 2599
+    },
+    {
+      "file": "assets/azure/foundry-agent-service.svg",
+      "sha256": "aedb65eeb06c1d4f3d57568edd2e8e7205065589ae8ceba4513a2fd21b4053ca",
+      "bytes": 3284
+    },
+    {
+      "file": "assets/azure/foundry-models.svg",
+      "sha256": "9c671f141cb0e19b62e004628183ed8711ad16ec3b2e56b14c3cd035d5fac711",
+      "bytes": 5358
+    },
+    {
+      "file": "assets/azure/foundry-project.svg",
+      "sha256": "152187174d7d632cd91fd7d17b37316c423e008a84a889241163af832c8c3dec",
+      "bytes": 2348
+    },
+    {
+      "file": "assets/azure/key-vault.svg",
+      "sha256": "712b426f54f0fc50d0816dc79df709daa7ac5f93ccaf4e9b3527f627f6e9ad97",
+      "bytes": 2231
+    },
+    {
+      "file": "assets/azure/log-analytics.svg",
+      "sha256": "7a244a8d7260e84be5c904185db7b04994fe6ed345e2b224163bc5f7e3d97ce0",
+      "bytes": 1295
+    },
+    {
+      "file": "assets/azure/managed-identity.svg",
+      "sha256": "2100bf636095348d0b75220450b5d88672c720f49c79972e95916e41e91ae169",
+      "bytes": 3938
+    },
+    {
+      "file": "assets/azure/microsoft-foundry.svg",
+      "sha256": "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c",
+      "bytes": 2824
+    },
+    {
+      "file": "assets/azure/storage-account.svg",
+      "sha256": "7190d3bb14ce30ce74bd0af873915830fe821e8c5f6ef6f3149e6f7cfb2aa4f7",
+      "bytes": 1157
+    }
+  ],
+  "outputs": [
+    {
+      "contract": "bootstrap-harden-verify-sequence.mmd",
+      "contract_sha256": "0a1f13c9073d75738913ce98a817d99d147c8fb60846790e4f41b2647fe20951",
+      "output": "bootstrap-harden-verify-sequence-azure-architecture.png",
+      "output_sha256": "7d3bb9a448fe2e40750faed01c0182a42a0f9655286770ccff4f79f4d6250017",
+      "bytes": 239507,
+      "width": 3840,
+      "height": 2160,
+      "sampled_non_white_ratio": 0.1981,
+      "node_count": 5,
+      "edge_count": 13,
+      "boundary_count": 2
+    },
+    {
+      "contract": "measured-authorization-boundary.mmd",
+      "contract_sha256": "d92cd84a3c508fcb3ef963e34d92dee296e90504a78468737462f1875e4e8db4",
+      "output": "measured-authorization-boundary-azure-architecture.png",
+      "output_sha256": "480a71a8dcf980de3675681b06e8f0ddce42f0c53142c1de0d7cdd75a59f76cf",
+      "bytes": 276083,
+      "width": 3840,
+      "height": 2160,
+      "sampled_non_white_ratio": 0.2257,
+      "node_count": 20,
+      "edge_count": 13,
+      "boundary_count": 3
+    },
+    {
+      "contract": "recommended-customer-target-state.mmd",
+      "contract_sha256": "2ec0828c0ec31245f85be6c858b7a7d8d06371dd1b277c8ec81ca90da70e5030",
+      "output": "recommended-customer-target-state-azure-architecture.png",
+      "output_sha256": "ffb373987a8340e0d98d2613546ebb56a9e293a436f888046c623819e78fd955",
+      "bytes": 249126,
+      "width": 3840,
+      "height": 2160,
+      "sampled_non_white_ratio": 0.5714,
+      "node_count": 9,
+      "edge_count": 8,
+      "boundary_count": 3
+    },
+    {
+      "contract": "test-controls-and-evidence.mmd",
+      "contract_sha256": "bd69e62e1cd388db9b40d7f6e91fa3764ca658256b1ad307f8931b5106a7ac90",
+      "output": "test-controls-and-evidence-azure-architecture.png",
+      "output_sha256": "3b706a80fb3d1cf7a4ab531ed82904a07314e8aada670a0a97a55a2cc3a5bdbc",
+      "bytes": 351915,
+      "width": 3840,
+      "height": 2160,
+      "sampled_non_white_ratio": 0.4942,
+      "node_count": 16,
+      "edge_count": 15,
+      "boundary_count": 0
+    },
+    {
+      "contract": "validation-lab-topology.mmd",
+      "contract_sha256": "007271cedeed80f3ce70d3640ade39b97a5facb2eb24797ad75af7b64fe09473",
+      "output": "validation-lab-topology-azure-architecture.png",
+      "output_sha256": "a6f6570a6781ffafdb86464c00aee7550456ce416a6ddb197f650220e33f41a9",
+      "bytes": 299218,
+      "width": 3840,
+      "height": 2160,
+      "sampled_non_white_ratio": 0.366,
+      "node_count": 9,
+      "edge_count": 11,
+      "boundary_count": 3
+    }
+  ]
+}

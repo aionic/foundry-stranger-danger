@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-run-1",
+  "generated_utc": "2026-09-03T01:05:00Z",
+  "isolation_mode": "hardened",
+  "projects": {
+    "alpha": {
+      "internal_id": "11111111111111111111111111111111",
+      "guid": "11111111-1111-1111-1111-111111111111",
+      "expected_blob_condition": "((!(ActionMatches{'read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase '11111111-1111-1111-1111-111111111111'))"
+    },
+    "bravo": {
+      "internal_id": "22222222222222222222222222222222",
+      "guid": "22222222-2222-2222-2222-222222222222",
+      "expected_blob_condition": "((!(ActionMatches{'read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase '22222222-2222-2222-2222-222222222222'))"
+    }
+  },
+  "cosmos_containers": [
+    { "name": "alpha-thread", "owner": "alpha", "runtime": "classic" },
+    { "name": "alpha-system-thread", "owner": "alpha", "runtime": "classic" },
+    { "name": "alpha-entity", "owner": "alpha", "runtime": "classic" },
+    { "name": "alpha-definitions", "owner": "alpha", "runtime": "modern" },
+    { "name": "alpha-state", "owner": "alpha", "runtime": "modern" },
+    { "name": "bravo-thread", "owner": "bravo", "runtime": "classic" },
+    { "name": "bravo-system-thread", "owner": "bravo", "runtime": "classic" },
+    { "name": "bravo-entity", "owner": "bravo", "runtime": "classic" },
+    { "name": "bravo-definitions", "owner": "bravo", "runtime": "modern" },
+    { "name": "bravo-state", "owner": "bravo", "runtime": "modern" }
+  ],
+  "blob_containers": [
+    { "name": "alpha-blob", "owner": "alpha" },
+    { "name": "alpha-agent", "owner": "alpha" },
+    { "name": "bravo-blob", "owner": "bravo" },
+    { "name": "bravo-agent", "owner": "bravo" }
+  ],
+  "cosmos_data_roles": [
+    { "principal": "project:alpha", "granularity": "container", "container": "alpha-thread" },
+    { "principal": "project:alpha", "granularity": "container", "container": "alpha-system-thread" },
+    { "principal": "project:alpha", "granularity": "container", "container": "alpha-entity" },
+    { "principal": "project:alpha", "granularity": "container", "container": "alpha-definitions" },
+    { "principal": "project:alpha", "granularity": "container", "container": "alpha-state" },
+    { "principal": "project:bravo", "granularity": "container", "container": "bravo-thread" },
+    { "principal": "project:bravo", "granularity": "container", "container": "bravo-system-thread" },
+    { "principal": "project:bravo", "granularity": "container", "container": "bravo-entity" },
+    { "principal": "project:bravo", "granularity": "container", "container": "bravo-definitions" },
+    { "principal": "project:bravo", "granularity": "container", "container": "bravo-state" }
+  ],
+  "arm_roles": [
+    { "principal": "project:alpha", "resource": "storage", "role": "Storage Blob Data Owner", "granularity": "ACCOUNT (spans all projects)", "is_direct": true, "condition": "yes", "condition_version": "2.0", "condition_expression": "((!(ActionMatches{'read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase '11111111-1111-1111-1111-111111111111'))" },
+    { "principal": "project:bravo", "resource": "storage", "role": "Storage Blob Data Owner", "granularity": "ACCOUNT (spans all projects)", "is_direct": true, "condition": "yes", "condition_version": "2.0", "condition_expression": "((!(ActionMatches{'read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringStartsWithIgnoreCase '22222222-2222-2222-2222-222222222222'))" }
+  ]
+}

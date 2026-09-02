@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-run-1",
+  "generated_utc": "2026-09-03T01:06:00Z",
+  "isolation_mode": "hardened",
+  "matrix": {
+    "broad": {
+      "own_project": null,
+      "results": {
+        "alpha": { "cosmos": { "outcome": "ALLOW" }, "blob": { "outcome": "ALLOW" }, "verdict": "PASS" },
+        "bravo": { "cosmos": { "outcome": "ALLOW" }, "blob": { "outcome": "ALLOW" }, "verdict": "PASS" }
+      }
+    },
+    "scoped-alpha": {
+      "own_project": "alpha",
+      "results": {
+        "alpha": { "cosmos": { "outcome": "ALLOW" }, "blob": { "outcome": "ALLOW" }, "verdict": "PASS" },
+        "bravo": { "cosmos": { "outcome": "DENY" }, "blob": { "outcome": "DENY" }, "verdict": "PASS" }
+      }
+    },
+    "scoped-bravo": {
+      "own_project": "bravo",
+      "results": {
+        "alpha": { "cosmos": { "outcome": "DENY" }, "blob": { "outcome": "DENY" }, "verdict": "PASS" },
+        "bravo": { "cosmos": { "outcome": "ALLOW" }, "blob": { "outcome": "ALLOW" }, "verdict": "PASS" }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "foundry-stranger-danger-docs",
+  "private": true,
+  "scripts": {
+    "test": "pwsh -NoProfile -File ./scripts/Test-Repository.ps1",
+    "diagrams:browser": "puppeteer browsers install chrome-headless-shell",
+    "diagrams:render": "pwsh -NoProfile -File ./scripts/Render-ApprovedDiagrams.ps1",
+    "diagrams:validate": "pwsh -NoProfile -File ./scripts/Test-MermaidDiagrams.ps1",
+    "test:evidence": "pwsh -NoProfile -File ./tests/Test-EvidenceContract.ps1",
+    "test:links": "pwsh -NoProfile -File ./scripts/Test-MarkdownLinks.ps1"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "0.1.100",
+    "@mermaid-js/mermaid-cli": "11.16.0"
+  }
+}
