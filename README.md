@@ -1,141 +1,188 @@
-# Microsoft Foundry project isolation: deploy, harden, verify
+# Foundry Stranger Danger
 
-This repository shows where the security boundary actually sits when two Microsoft Foundry
-projects share Azure Cosmos DB, Azure Storage, and Azure AI Search. It is a disposable validation
-lab and evidence harness, not a production reference deployment.
+**In a default multi-project Microsoft Foundry deployment, project data is separated
+programmatically, not by a project-level RBAC boundary on the backing stores.**
 
-> [!IMPORTANT]
-> A Foundry project creates a distinct identity and project-prefixed data layout. Neither the
-> project nor the resource name is an authorization boundary by itself. The enforceable boundary
-> comes from the backing-resource topology and the scope of the Azure and Cosmos role assignments.
+Foundry knows which project is running. It creates project-specific Cosmos containers, Blob
+containers, and Search indexes, then routes normal project traffic to those resources. That
+programmatic routing keeps the projects separate during normal operation.
 
-## The short answer
+The backing services answer a different question: if a project identity directly asks for another
+project's container or index, is it authorized? When the identity has a database-, account-, or
+service-scoped role, the answer can be yes. Generated names tell the runtime where data belongs;
+they do not make the data inaccessible to a broadly authorized credential.
 
-| Question | Answer |
-|---|---|
-| What does the lab deploy? | One Foundry account, two projects, and one shared instance each of Cosmos DB, Storage, and AI Search |
-| Is a clean deployment isolated? | No. Shared Cosmos needs a temporary database-scoped bootstrap grant, and Search remains service-scoped |
-| What does the hardening script enforce? | Direct Cosmos and Blob data-plane access is limited to each project's own containers and verified with positive and negative controls |
-| Is the hardened lab a hard trust boundary? | No. Project identities retain management roles on shared services, and Search is intentionally shared |
-| What is the sane production boundary? | For separate customers, tenants, owners, or sensitivity classes, use a separate Cosmos account, Storage account, and Search service per project |
+This lab makes that distinction visible, proves it with direct data-plane requests, and demonstrates
+a hardened multi-project alternative:
+
+- **Cosmos DB:** project-container RBAC enforced by the database service;
+- **Azure Storage:** project-prefix ABAC enforced by the storage service;
+- **Foundry:** two projects, identities, capability hosts, and agents remain in one account;
+- **AI Search:** retained as the shared control case because generated index ownership is not a
+  durable project authorization contract.
+
+> [!NOTE]
+> The lab found no cross-project routing defect in Foundry. The finding is that runtime routing may
+> be the only project boundary unless authorization on each connected data service is narrowed too.
+
+## Programmatic isolation versus enforced isolation
+
+| Layer | What it does | What it does not do |
+|---|---|---|
+| Programmatic isolation | Foundry carries project context, generates project-specific names, and routes each project to its own data | Stop a broadly authorized identity from directly addressing another project's resource |
+| Authorization isolation | Cosmos RBAC, Storage ABAC, or Search RBAC rejects access outside the identity's allowed scope | Decide which resource the Foundry runtime should use |
+| Resource isolation | Separate backing accounts or services prevent service-scoped roles from spanning projects | Preserve the lower cost and operational simplicity of shared services |
+
+The first layer is the default isolation model explored here. The second layer is the hardened
+alternative implemented for Cosmos and Storage. The third is the recommended boundary when
+projects are mutually untrusted.
+
+By "default" this README means an un-hardened multi-project topology that shares connected data
+services and relies on Foundry's project-aware routing. Exact roles vary by deployment path. Inspect
+the effective assignments in your environment rather than assuming a template has a particular
+scope.
+
+## What the default multi-project shape looks like
+
+![Two Foundry projects intentionally sharing Cosmos DB, Storage, and AI Search.](docs/diagrams/rendered/validation-lab-topology-azure-architecture.png)
+
+One Foundry account contains projects `alpha` and `bravo`. Each project has its own identity,
+endpoint, agent runtime, connections, capability host, and generated data objects. Both projects
+connect to one shared Cosmos DB account, one Storage account, and one AI Search service.
+
+| Store | How Foundry keeps project data apart | What happens with broad authorization |
+|---|---|---|
+| Cosmos DB | Five containers per project use the project's internal GUID as a prefix | A role on the shared `enterprise_memory` database reaches both projects' containers |
+| Azure Storage | Two generated Blob containers per project use the dashed project GUID as a prefix | An unconditioned account-scoped Blob data role reaches both projects' containers |
+| AI Search | A vector store is associated with a generated index | A service-scoped Search data role reaches both projects' indexes |
+
+The runtime selects the right resource, but a broad credential is not independently constrained to
+that resource.
+
+## What this lab tests
+
+The experiment bypasses normal Foundry routing and asks each backing service directly:
+
+> If the alpha-shaped identity requests bravo's data, does the data service deny it?
+
+![Broad backing-store authorization compared with project-constrained authorization.](docs/diagrams/rendered/measured-authorization-boundary-azure-architecture.png)
+
+| Store | Broad control | Project-constrained control |
+|---|---|---|
+| Cosmos DB | Data role on the shared database | Data role on each owned container |
+| Azure Storage | Unconditioned Blob data role on the shared account | Account role conditioned on the project's container-name prefix |
+| AI Search | Data role on the shared service | Data role on one selected index |
+
+The probes use direct Azure data-plane requests. An own-project success proves the path is live; only
+then does a cross-project denial count as authorization evidence. A firewall refusal is `BLOCKED`,
+not `DENY`.
+
+## What the lab found
+
+| Store | Broad result | Constrained result | Conclusion |
+|---|---|---|---|
+| Cosmos DB | Database scope allowed reads from both projects | Container scope allowed the owner and denied the other project | Cosmos data-plane RBAC can enforce the project boundary |
+| Azure Storage | Unconditioned account scope allowed reads from both projects | Project-prefix condition allowed the owner and denied the other project | Storage ABAC can enforce the project boundary |
+| AI Search | Service scope allowed reads from both project indexes | Single-index scope allowed the selected index and denied the other | Search enforces index RBAC, but Foundry did not expose a durable project-to-index mapping |
+
+The result is not "Foundry sends alpha traffic to bravo." It is:
+
+> Foundry sends alpha traffic to alpha, but a credential authorized above alpha's resource can use
+> another code path to reach bravo.
+
+That distinction is the point of the repository.
 
 Accepted evidence run:
 [`20260903T220650154Z-14a2c4a0`](evidence/published/20260903T220650154Z-14a2c4a0/REPORT.md).
 
-## Platform behavior versus lab configuration
+## The hardened multi-project alternative
 
-Keep these three layers separate:
+The hardened lab keeps the same Foundry account, projects, identities, capability hosts, and shared
+Cosmos and Storage services. It adds authorization enforcement beneath Foundry's programmatic
+routing.
 
-1. **Foundry creates** a project identity, endpoint, capability host, connections, and
-   project-prefixed Cosmos and Blob containers.
-2. **This repository configures** two projects to use the same backing services and assigns the
-   roles needed to measure cross-project access.
-3. **You choose** whether the production boundary is a narrow role scope inside one trusted shared
-   service or a separate backing resource for each trust boundary.
+### Cosmos DB: container-scoped RBAC
 
-The broad Cosmos bootstrap role in this lab is a tested permission shape. Do not describe it as an
-automatic platform default without confirming the current deployment template you use.
+Each project identity receives `Cosmos DB Built-in Data Contributor` on exactly five owned
+containers:
 
-## What a default lab deployment looks like
+```text
+/dbs/enterprise_memory/colls/<project-guid>-thread-message-store
+/dbs/enterprise_memory/colls/<project-guid>-system-thread-message-store
+/dbs/enterprise_memory/colls/<project-guid>-agent-entity-store
+/dbs/enterprise_memory/colls/<project-guid>-agent-definitions-v1
+/dbs/enterprise_memory/colls/<project-guid>-run-state-v1
+```
 
-![Validation lab with two Foundry projects intentionally sharing Cosmos DB, Storage, and AI Search while diagnostics collect evidence.](docs/diagrams/rendered/validation-lab-topology-azure-architecture.png)
+The project identity has no account- or database-scoped Cosmos data role in the hardened state. If
+alpha directly requests a bravo container, Cosmos rejects the request regardless of what the
+Foundry runtime would normally route.
 
-Each project has its own system-assigned managed identity, but both identities receive permissions
-on the same backing resources.
+### Azure Storage: prefix-conditioned ABAC
 
-| Store | Bootstrap data access | Verified lab end state | Retained management access |
-|---|---|---|---|
-| Cosmos DB | `Cosmos DB Built-in Data Contributor` on the shared `enterprise_memory` database | Five container-scoped data assignments per project; no project database- or account-scoped data assignment | `Cosmos DB Operator` on the shared account |
-| Storage | `Storage Blob Data Owner` at account scope with an ABAC condition matching the project's dashed GUID container prefix | The same conditioned assignment; own-prefix reads allowed and the other project denied | `Storage Account Contributor` on the shared account |
-| AI Search | `Search Index Data Contributor` and `Search Service Contributor` at service scope | Unchanged by the hardening script; both projects can reach the shared service | Service-wide object management remains available |
+Each project identity receives one account-scoped `Storage Blob Data Owner` assignment with an ABAC
+condition. Blob data actions are allowed only when the container name starts with the identity's
+dashed project GUID.
 
-The lab also grants the deployer broad read access and can create surrogate probe identities. Those
-controls prove that resources exist and that a denial is an authorization result rather than an
-empty resource. Their credentials are stored in local Terraform state.
+The role stays at account scope because one generated container contains an unpredictable segment:
 
-Cosmos, Storage, and Search local key authentication is disabled. Public data endpoints remain
-enabled intentionally so the lab can distinguish an RBAC denial from a network refusal. Production
-private networking is outside this assessment.
+```text
+<project-guid>-azureml-blobstore
+<project-guid>-<service-assigned-segment>-azureml-agent
+```
 
-## The clean-deployment bootstrap window
+Constructing complete names is brittle. Storage also accepts an assignment scoped to a container
+that does not exist, which can make a bad role look successfully deployed while denying the owning
+project. The prefix is the stable project attribute, and the verifier tests both own-project access
+and cross-project denial.
 
-Two defaults are easy to confuse:
+### AI Search: measured, not hardened by this deployment
 
-- Terraform's `isolation_mode` defaults to `hardened`, which describes the required steady state.
-- A clean environment cannot be created directly in that state. The guard in
-  [terraform/guardrails.tf](terraform/guardrails.tf) blocks it and directs operators to the
-  orchestrator.
+Single-index Search RBAC worked in the test. The operational problem was ownership: the Foundry
+vector-store response did not expose the generated index name, and the index name did not identify
+its project. The lab established ownership only by creating one vector store at a time and diffing
+the service's index list.
 
-The capability host initially creates three Cosmos containers per project. These two additional
-containers appear only after the first Responses API invocation:
+That is enough to test index RBAC, but it is not a durable production mapping. Project identities
+therefore remain service-scoped in this lab so the programmatic Search boundary stays measurable.
+Use one Search service per project when vector data needs an independently enforceable boundary.
+
+## Why hardening is a two-phase deployment
+
+A clean shared-Cosmos deployment cannot begin with all five container roles. The capability host
+creates three containers first. These two appear only after the first Responses API invocation:
 
 ```text
 <project-guid>-agent-definitions-v1
 <project-guid>-run-state-v1
 ```
 
-Cosmos rejects a role assignment scoped to a container that does not exist. The supported clean
-deployment therefore starts with database-scoped access, writes only a synthetic canary, discovers
-all five containers, and then replaces the broad role. Precreating service-owned containers is not
-recommended because their indexing policy belongs to the service and may change.
+Cosmos rejects a role assignment for a container that does not exist. The supported workflow uses a
+bounded bootstrap window:
+
+| Phase | Action | Boundary state |
+|---|---|---|
+| 0. Preflight | Check tools, access, providers, model quota, and configuration | Nothing is declared usable |
+| 1. Bootstrap | Deploy both projects with temporary access to the shared Cosmos database | Foundry routing is the project boundary; synthetic data only |
+| 2. Materialize | Invoke one canary agent per project and discover all five containers | Every Cosmos target now exists |
+| 3. Harden | Add five container roles per project and remove the database roles | Cosmos RBAC and Storage ABAC enforce direct data access |
+| 4. Verify | Inspect real assignments and run own-project and cross-project probes | Fail closed unless every expected result matches |
 
 > [!WARNING]
 > During bootstrap, either project identity can address the other project's Cosmos containers.
-> Do not assign users or applications and do not introduce real data until hardening and
-> verification succeed.
+> Do not assign users or applications or introduce real data until verification succeeds.
 
-## Deployment lifecycle
+Precreating the lazy containers is not recommended because their indexing policy is service-owned
+and can change. Terraform's steady-state `isolation_mode` defaults to `hardened`, but
+[terraform/guardrails.tf](terraform/guardrails.tf) blocks a clean plain apply while those containers
+are absent. Use the orchestrator.
 
-The supported entry point is [scripts/deploy-and-harden.ps1](scripts/deploy-and-harden.ps1), not a
-plain `terraform apply` on a clean environment.
-
-| Phase | Action | Security state |
-|---|---|---|
-| 0. Preflight | Check tools, Azure access, providers, model quota, and configuration | Nothing is declared usable |
-| 1. Bootstrap | Deploy shared services and projects with database-scoped Cosmos access | Bootstrap window open; synthetic data only |
-| 2. Canary | Invoke one Responses API `v1` agent per project | Lazy containers are created |
-| 3. Discover | Require all five Cosmos containers per project to exist | Hardening can now target real resources |
-| 4. Harden | Replace each database grant with five project-container grants | Broad project Cosmos data grants removed |
-| 5. Verify | Inspect real roles and run own-project/cross-project Cosmos and Blob reads | Fail closed unless every expected result matches |
-
-Search is not hardened in phase 4. It stays shared so the Search exposure can be reproduced by the
-evidence collector.
-
-## Choose the boundary before deploying
-
-| Project relationship | Cosmos DB | Storage | AI Search | Meaning |
-|---|---|---|---|---|
-| Separate customer, tenant, owner, sensitivity, residency, or incident boundary | Per project | Per project | Per project | Hard resource and RBAC boundary |
-| One accepted trust boundary; vector stores or file search used | Shared with container roles | Shared with project-prefix ABAC | Per project | Direct shared-data access constrained; vector data separated |
-| One accepted trust boundary; no vector data requiring strict isolation | Shared with container roles | Shared with project-prefix ABAC | Shared only by explicit risk acceptance | Cost optimization inside one trust boundary |
-| Bootstrap cannot be completed before user access | Per project | Prefer per project | Per project when used | Avoids the shared-Cosmos bootstrap window |
-
-### Same-trust RBAC boundary
-
-Shared Cosmos and Storage can provide a useful direct data-plane boundary when all projects already
-belong to one operational and security trust domain:
-
-- Cosmos data access is scoped to the five owned containers.
-- Blob data access is conditioned on the owning project's container-name prefix.
-- Configuration assertions and live reads verify both own-project access and cross-project denial.
-
-This is the boundary automated by this repository.
-
-### Cross-trust hard boundary
-
-For mutually untrusted projects, use one backing-resource set per project and grant each project
-identity roles only on its own set. A centralized Foundry account and approved model deployments may
-still be retained where policy permits, but the project identity must have no data or management
-role on another project's Cosmos account, Storage account, or Search service.
-
-This removes the shared-Cosmos bootstrap exposure and contains persistent provisioning authority.
-The architecture is recommended here but is not deployed by this repository.
-
-## Run the validation lab
+## Deploy the baseline and hardened alternative
 
 Use a disposable subscription or isolated test resource group. The lab creates broad controls,
 stores temporary service-principal secrets in Terraform state, and intentionally uses public data
-endpoints.
+endpoints so it can distinguish an authorization denial from a network block. Local key
+authentication is disabled for Cosmos, Storage, and Search.
 
 Prerequisites are PowerShell 7, Azure CLI, Terraform 1.9 or later, permission to create role
 assignments and Entra app registrations, and quota for the selected model.
@@ -150,15 +197,17 @@ terraform -chdir=terraform init
 .\scripts\deploy-and-harden.ps1
 ```
 
-The orchestrator runs preflight, opens and closes the bounded Cosmos bootstrap window, and verifies
-Cosmos and Storage. A successful exit does not certify shared Search.
+The orchestrator deploys the multi-project topology, materializes the service-owned containers,
+replaces the broad Cosmos data roles, and verifies the Cosmos RBAC and Storage ABAC boundary. A
+successful exit does not certify shared Search.
 
 The canary data remains after the script succeeds. Remove it before assigning real users or
 applications.
 
-## What verification requires
+## How the lab proves enforcement
 
-Configuration and behavior are independent gates. Both must pass.
+The lab does not infer isolation from generated names or from a successful deployment. It checks the
+real role assignments and then exercises the data services directly. Both gates must pass.
 
 **Configuration**
 
@@ -186,17 +235,18 @@ Rerun verification against an existing deployment with:
 .\scripts\deploy-and-harden.ps1 -VerifyOnly
 ```
 
-## Harden an existing environment in a sane order
+## Apply the pattern to an existing deployment
 
-1. Classify each project's customer, owner, sensitivity, residency, retention, and incident
-   boundary.
-2. Split Cosmos, Storage, and Search first when any of those trust properties differ.
-3. If Cosmos remains shared, add all five project-container data assignments before removing the
+1. Inventory each project's identity, internal GUID, connected Cosmos account, Storage account, and
+   Search service.
+2. Enumerate the actual generated containers and indexes. Do not reconstruct ownership from an
+   assumed full name.
+3. For shared Cosmos, add all five project-container data assignments before removing the
    database-scoped assignment.
-4. If Storage remains shared, replace unconditioned Blob data roles with a tested project-prefix
-   ABAC condition. Validate against the actual generated container names.
-5. Give each project its own Search service wherever vector stores or file search cross a trust
-   boundary.
+4. For shared Storage, replace unconditioned Blob data roles with the tested project-prefix ABAC
+   condition.
+5. For Search, use index RBAC only when a durable project-to-index mapping exists. Otherwise split
+   the Search service wherever authorization must enforce the project boundary.
 6. Disable local and shared-key authorization so identity policy cannot be bypassed.
 7. Verify the real project role inventory and run positive and negative data-plane controls.
 8. Preserve the configuration and probe evidence together, remove synthetic data, and only then
@@ -205,7 +255,7 @@ Rerun verification against an existing deployment with:
 Use the [hardening guide](docs/05-hardening-guide.md) for audit commands, exact assignment shapes,
 failure recovery, and the completion checklist.
 
-## What a successful lab run does and does not prove
+## Scope of the hardened boundary
 
 | Claim | Supported? |
 |---|---|
@@ -216,9 +266,18 @@ failure recovery, and the completion checklist.
 | Project-prefixed names alone enforce authorization | No |
 | Production private networking, availability, backup, or disaster recovery is validated | No |
 
-The important distinction is between a **direct data-plane RBAC boundary inside one trust domain**
-and a **hard boundary against a hostile or compromised project identity**. The latter requires
-separate backing resources and the absence of cross-project management roles.
+The hardened result adds a data-service authorization boundary beneath Foundry's programmatic
+boundary. It prevents accidental or alternate-path direct reads across projects for Cosmos and
+Blob.
+
+It is not a hostile-identity boundary. Project identities retain service-wide provisioning roles
+needed by the shared topology, including `Cosmos DB Operator`, `Storage Account Contributor`, and
+`Search Service Contributor`. The lab did not exercise a compromised identity using those
+management actions to change service configuration or disrupt another project.
+
+Use the shared hardened pattern inside one accepted trust domain. Use a separate Cosmos account,
+Storage account, and Search service per project when the projects represent different customers,
+tenants, owners, sensitivity classes, residency requirements, or incident boundaries.
 
 ## Collect evidence and tear down
 
@@ -237,14 +296,14 @@ Destroy the disposable environment when finished:
 .\scripts\99-destroy.ps1
 ```
 
-## Read by outcome
+## Read next
 
 | Goal | Document |
 |---|---|
-| Make the security or architecture decision | [Customer assessment](docs/00-report.md) |
-| Compare the lab with the recommended target state | [Architecture](docs/01-architecture.md) |
-| Reproduce and interpret the measurements | [Validation runbook](docs/03-validation-runbook.md) |
-| Audit and remediate an environment | [Hardening guide](docs/05-hardening-guide.md) |
+| Review the complete findings | [Customer assessment](docs/00-report.md) |
+| Compare the lab and target architectures | [Architecture](docs/01-architecture.md) |
+| Reproduce the experiment | [Validation runbook](docs/03-validation-runbook.md) |
+| Apply the controls to an existing environment | [Hardening guide](docs/05-hardening-guide.md) |
 | Review the approved architecture figures | [Architecture figures](docs/diagrams/README.md) |
 | Understand evidence provenance and publication | [Evidence guide](evidence/README.md) |
 
@@ -260,7 +319,7 @@ Destroy the disposable environment when finished:
 - Persistent provisioning roles were inventoried, but management-plane attack paths were not
   exercised.
 
-## Current Microsoft references
+## Microsoft references
 
 Sources were reviewed on **2 September 2026**:
 
@@ -274,9 +333,9 @@ Sources were reviewed on **2 September 2026**:
 
 | Path | Purpose |
 |---|---|
-| [terraform/](terraform) | Reproducible validation topology and permission shapes |
-| [scripts/](scripts) | Preflight, deployment, probes, evidence packaging, and teardown |
-| [docs/](docs) | Customer assessment, architecture, runbook, and hardening guidance |
+| [terraform/](terraform) | Multi-project topology and broad/hardened permission shapes |
+| [scripts/](scripts) | Deployment, direct probes, evidence packaging, and teardown |
+| [docs/](docs) | Full findings, architecture, runbook, and hardening guidance |
 | [docs/diagrams/](docs/diagrams) | Authoritative Mermaid architecture contracts |
 | [evidence/](evidence) | Generated evidence layout and tracked publication guidance |
 
