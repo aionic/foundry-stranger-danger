@@ -4,10 +4,17 @@ This document separates the **validation lab**, the **measured authorization bou
 **recommended customer target state**. They answer different questions and must not be presented as
 one architecture.
 
+The default multi-project boundary examined here is programmatic: Foundry uses project context,
+generated names, and runtime routing to select each project's data. The lab bypasses that normal
+path and asks whether Cosmos DB, Storage, and AI Search also enforce the same boundary through
+authorization.
+
 ## Architecture interpretation
 
 - A Foundry account is the top-level governance resource; projects are development boundaries within
   it.
+- Foundry's normal project routing and a backing service's authorization decision are separate
+  controls.
 - Cosmos DB, Storage, and AI Search are connected Azure resources with their own authorization and
   network controls.
 - The lab deliberately connects two projects to one instance of each backing service so
@@ -193,7 +200,9 @@ Additional Search services and capacity management.
 
 **Validation status**
 
-**Measured** for shared service and single-index read scope; **recommended** for the target topology.
+Shared-service and single-index read scopes are **measured**. One Search service per project is
+**recommended** but deliberately not deployed by this lab; the shared service-scoped project roles
+remain in place so the programmatic Search boundary can be measured.
 
 ### A5. Verify configuration and behavior independently
 

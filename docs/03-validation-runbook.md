@@ -3,6 +3,10 @@
 This runbook reproduces the cross-project authorization measurements and creates a traceable evidence
 package. It is for a disposable validation environment, not an existing production deployment.
 
+The probes intentionally bypass Foundry's normal project-aware routing and call the connected data
+services directly. Their purpose is to distinguish programmatic project separation from a Cosmos
+RBAC, Storage ABAC, or Search RBAC denial enforced by the backing service.
+
 ## Safety boundary
 
 The lab intentionally creates broad read controls and stores temporary service-principal credentials

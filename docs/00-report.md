@@ -15,6 +15,12 @@ Microsoft Foundry creates distinct project assets. The connected Cosmos DB, Stor
 Search services remain independently governed Azure resources, so their topology and role scopes
 determine the effective data boundary.
 
+In the default shared-service shape, normal project separation is programmatic: Foundry carries
+project context and routes each project to generated project-specific resources. This assessment
+does not demonstrate a routing defect. It asks whether each backing service independently rejects a
+direct request for another project's data when a project credential is used outside that runtime
+path.
+
 The assessment measured the following authorization behavior:
 
 | Store | Measured control behavior | Decision |

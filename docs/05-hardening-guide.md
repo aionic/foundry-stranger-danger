@@ -4,6 +4,11 @@ Use this guide to decide, implement, and verify the backing-resource boundary fo
 projects. Start with the audit. Do not begin by changing individual role assignments without first
 deciding whether the projects belong in the same trust boundary.
 
+Foundry already separates normal project traffic programmatically through project context,
+generated names, and runtime routing. Hardening adds a second boundary at the connected data
+service: container-scoped Cosmos RBAC, project-prefix Storage ABAC, or a separate Search service
+where generated index ownership is not a durable authorization contract.
+
 ## Target outcome
 
 A completed design must satisfy all applicable statements:
@@ -118,6 +123,11 @@ Keys bypass the identity boundary assessed here.
 | Separate customer, tenant, ownership, sensitivity, residency, or incident boundary | Per project | Per project | Per project | None across projects |
 | One trust boundary; vector stores or file search used | Shared with container grants | Shared with project-prefix ABAC | Per project | Bounded shared-Cosmos window |
 | One trust boundary; no vector data requiring isolation | Shared with container grants | Shared with project-prefix ABAC | Shared only if accepted by design | Bounded shared-Cosmos window |
+
+**Search is the exception in the hardened lab.** The repository implements the second authorization
+boundary for shared Cosmos and Storage, but intentionally leaves project identities service-scoped
+on shared Search so that behavior remains measurable. It does not deploy the recommended
+per-project Search topology.
 
 ![Recommended target state with one backing-resource set per project trust boundary.](diagrams/rendered/recommended-customer-target-state-azure-architecture.png)
 
